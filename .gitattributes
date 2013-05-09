@@ -1,0 +1,5 @@
+# LF Normalization
+* text=auto
+
+# xise files are always LF
+*.xise eol=lf

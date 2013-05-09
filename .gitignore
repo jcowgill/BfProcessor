@@ -1,0 +1,8 @@
+# Xilinx Build Directory
+build/
+
+# User config files
+iseconfig/
+
+# HTML output directories
+*_html/
