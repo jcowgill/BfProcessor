@@ -50,6 +50,15 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
     // Internal Registers
     reg  [IADDR_WIDTH - 1:0]    pc;             // Program counter
     reg  [DADDR_WIDTH - 1:0]    dp;             // Data pointer
+    reg  [SADDR_WIDTH - 1:0]    lsc;            // Loop skip counter
+        /*
+         * The loop skip counter is used for skipping entire loops
+         * when *DP == 0 when entering them. During normal operation
+         * the counter equals 0. When entering a loop which should be
+         * skipped, the counter is set to 1 and is used to detect nested
+         * loops and when the program should resume.
+         * When loop_skip_count != 0, normal instructions are not executed.
+         */
 
     // Internal Signals (wires driven by block memories)
     wire [3:0]                  ci;             // Current instruction
@@ -63,8 +72,9 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
     reg                         stack_push;     // High to push onto the stack
     reg                         stack_pop;      // High to pop off the stack
 
-    reg  [IADDR_WIDTH - 1:0]    next_pc;        // Net value of the program counter
-    reg  [DADDR_WIDTH - 1:0]    next_dp;        // Net value of the data pointer
+    reg  [IADDR_WIDTH - 1:0]    next_pc;        // Next value of the program counter
+    reg  [DADDR_WIDTH - 1:0]    next_dp;        // Next value of the data pointer
+    reg  [SADDR_WIDTH - 1:0]    next_lsc;       // Next value of the loop skip counter
 
     // Block memory instances
     instruction_rom #(.ADDR_WIDTH(IADDR_WIDTH)) rom (
@@ -93,6 +103,7 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
     begin
         pc = 0;
         dp = 0;
+        lsc = 0;
     end
 
     // Combinational part
@@ -109,83 +120,114 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
         stack_pop = 0;
         next_dp = dp;
         next_pc = pc + 1'b1;
+        next_lsc = lsc;
 
-        // Handle each opcode
-        case (ci)
-            4'h0:
-                begin
-                    // Halt - set pc to itself so we just loop on this instruction
-                    next_pc = pc;
-                end
-
-            4'h8:
-                begin
-                    // Increment DP
-                    next_dp = dp + 1'b1;
-                end
-
-            4'h9:
-                begin
-                    // Decrement DP
-                    next_dp = dp - 1'b1;
-                end
-
-            4'hA:
-                begin
-                    // Increment *DP
-                    data_to_ram = data_from_ram + 1'b1;
-                    ram_write = 1;
-                end
-
-            4'hB:
-                begin
-                    // Decrement *DP
-                    data_to_ram = data_from_ram - 1'b1;
-                    ram_write = 1;
-                end
-
-            4'hC:
-                begin
-                    // Start loop - push PC + 1 onto the stack
-                    stack_data = next_pc;
-                    stack_push = 1;
-                end
-
-            4'hD:
-                begin
-                    // End of loop - either exit the loop or loop around
-                    if (data_from_ram == 0)
-                        stack_pop = 1;
-                    else
-                        next_pc = stack_top;
-                end
-
-            4'hE:
-                begin
-                    // Output 1 byte
-                    data_out = data_from_ram;
-                    data_out_en = 1;
-                end
-
-            4'hF:
-                begin
-                    // Input 1 byte
-                    if (data_available)
+        // Different handling depending on lsc
+        if (lsc == 0)
+        begin
+            // Handle each opcode
+            case (ci)
+                4'h0:
                     begin
-                        // Read this byte into memory and signal that it was read
-                        data_to_ram = data_in;
-                        ram_write = 1;
-                        data_read = 1;
-                    end
-                    else
-                    begin
-                        // Busy wait here until we can read (this is like the halt instruction)
+                        // Halt - set pc to itself so we just loop on this instruction
                         next_pc = pc;
                     end
-                end
 
-            // Deault - noop
-        endcase
+                4'h8:
+                    begin
+                        // Increment DP
+                        next_dp = dp + 1'b1;
+                    end
+
+                4'h9:
+                    begin
+                        // Decrement DP
+                        next_dp = dp - 1'b1;
+                    end
+
+                4'hA:
+                    begin
+                        // Increment *DP
+                        data_to_ram = data_from_ram + 1'b1;
+                        ram_write = 1;
+                    end
+
+                4'hB:
+                    begin
+                        // Decrement *DP
+                        data_to_ram = data_from_ram - 1'b1;
+                        ram_write = 1;
+                    end
+
+                4'hC:
+                    begin
+                        // Start loop - either skip entire loop of push into it
+                        if (data_from_ram == 0)
+                        begin
+                            // Skip entire loop
+                            next_lsc = 1;
+                        end
+                        else
+                        begin
+                            // Start loop - push PC + 1 onto the stack
+                            stack_data = next_pc;
+                            stack_push = 1;
+                        end
+                    end
+
+                4'hD:
+                    begin
+                        // End of loop - either exit the loop or loop around
+                        if (data_from_ram == 0)
+                            stack_pop = 1;
+                        else
+                            next_pc = stack_top;
+                    end
+
+                4'hE:
+                    begin
+                        // Output 1 byte
+                        data_out = data_from_ram;
+                        data_out_en = 1;
+                    end
+
+                4'hF:
+                    begin
+                        // Input 1 byte
+                        if (data_available)
+                        begin
+                            // Read this byte into memory and signal that it was read
+                            data_to_ram = data_in;
+                            ram_write = 1;
+                            data_read = 1;
+                        end
+                        else
+                        begin
+                            // Busy wait here until we can read (this is like the halt instruction)
+                            next_pc = pc;
+                        end
+                    end
+
+                // Deault - noop
+            endcase
+        end
+        else
+        begin
+            // Special loop skip counter handling
+            case (ci)
+                4'hC:
+                    begin
+                        // Increment lsc
+                        next_lsc = lsc + 1'b1;
+                    end
+
+                4'hD:
+                    begin
+                        // Decrement lsc
+                        next_lsc = lsc - 1'b1;
+                    end
+            endcase
+        end
     end
 
     // Synchronous (register update) part
@@ -194,5 +236,6 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
         // Update registers
         pc <= next_pc;
         dp <= next_dp;
+        lsc <= next_lsc;
     end
 endmodule
