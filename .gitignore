@@ -6,3 +6,10 @@ iseconfig/
 
 # HTML output directories
 *_html/
+
+# The ROM file
+rom.mif
+
+# Python ignores
+*.py[cod]
+__pycache__
