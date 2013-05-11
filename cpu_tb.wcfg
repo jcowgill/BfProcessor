@@ -22,13 +22,21 @@
          <obj_property name="ElementShortName">data_out_en</obj_property>
          <obj_property name="ObjectShortName">data_out_en</obj_property>
       </wvobject>
+      <wvobject fp_name="/cpu_tb/data_read" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">data_read</obj_property>
+         <obj_property name="ObjectShortName">data_read</obj_property>
+      </wvobject>
       <wvobject fp_name="/cpu_tb/clk" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">clk</obj_property>
          <obj_property name="ObjectShortName">clk</obj_property>
       </wvobject>
-      <wvobject fp_name="/cpu_tb/rst" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst</obj_property>
-         <obj_property name="ObjectShortName">rst</obj_property>
+      <wvobject fp_name="/cpu_tb/data_in" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cpu_tb/data_available" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">data_available</obj_property>
+         <obj_property name="ObjectShortName">data_available</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group6" type="group">
@@ -38,9 +46,13 @@
          <obj_property name="ElementShortName">clk</obj_property>
          <obj_property name="ObjectShortName">clk</obj_property>
       </wvobject>
-      <wvobject fp_name="/cpu_tb/uut/rst" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst</obj_property>
-         <obj_property name="ObjectShortName">rst</obj_property>
+      <wvobject fp_name="/cpu_tb/uut/data_in" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cpu_tb/uut/data_available" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">data_available</obj_property>
+         <obj_property name="ObjectShortName">data_available</obj_property>
       </wvobject>
       <wvobject fp_name="/cpu_tb/uut/ci" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ci[3:0]</obj_property>
@@ -61,6 +73,10 @@
       <wvobject fp_name="/cpu_tb/uut/data_out_en" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">data_out_en</obj_property>
          <obj_property name="ObjectShortName">data_out_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cpu_tb/uut/data_read" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">data_read</obj_property>
+         <obj_property name="ObjectShortName">data_read</obj_property>
       </wvobject>
       <wvobject fp_name="/cpu_tb/uut/pc" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">pc[7:0]</obj_property>
@@ -113,6 +129,10 @@
       <wvobject fp_name="/cpu_tb/uut/DATA_WIDTH" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">DATA_WIDTH[31:0]</obj_property>
          <obj_property name="ObjectShortName">DATA_WIDTH[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/cpu_tb/uut/INIT_RAM" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">INIT_RAM[31:0]</obj_property>
+         <obj_property name="ObjectShortName">INIT_RAM[31:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group52" type="group">
@@ -185,10 +205,6 @@
       <wvobject fp_name="/cpu_tb/uut/loop_stack/clk" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">clk</obj_property>
          <obj_property name="ObjectShortName">clk</obj_property>
-      </wvobject>
-      <wvobject fp_name="/cpu_tb/uut/loop_stack/rst" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst</obj_property>
-         <obj_property name="ObjectShortName">rst</obj_property>
       </wvobject>
       <wvobject fp_name="/cpu_tb/uut/loop_stack/pushd" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">pushd[7:0]</obj_property>

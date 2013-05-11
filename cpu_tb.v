@@ -23,22 +23,40 @@
 module cpu_tb;
 
     // Inputs
-    reg clk;
+    reg         clk;
+    reg [7:0]   data_in;
+    reg         data_available;
 
     // Outputs
-    wire [7:0] data_out;
-    wire       data_out_en;
+    wire [7:0]  data_out;
+    wire        data_out_en;
+    wire        data_read;
 
     // This testbench just lets the CPU run, producing whatever output it wants
     cpu #(.INIT_RAM(1)) uut (
         .clk(clk),
+        .data_in(data_in),
+        .data_available(data_available),
         .data_out(data_out),
-        .data_out_en(data_out_en)
+        .data_out_en(data_out_en),
+        .data_read(data_read)
     );
 
     initial
     begin
         clk = 0;
+        data_in = 0;
+        data_available = 0;
+        #101 data_available = 1;
+    end
+
+    // Generate some data
+    always @(posedge clk)
+    begin
+        if (data_read)
+        begin
+            data_in <= data_in + 1'b1;
+        end
     end
 
     // Clock signal

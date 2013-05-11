@@ -20,7 +20,7 @@
 
 `timescale 1ns / 1ps
 
-module cpu(data_out, data_out_en, clk);
+module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
 
     // Width of instruction addresses (affects size of ROM)
     parameter IADDR_WIDTH = 8;
@@ -40,8 +40,12 @@ module cpu(data_out, data_out_en, clk);
     // Inputs and outputs
     output reg [DATA_WIDTH - 1:0] data_out;     // Output data bus
     output reg                  data_out_en;    // If high, output was written on last cycle
+    output reg                  data_read;      // If high, input was read on last cycle
 
     input                       clk;            // Clock
+
+    input [DATA_WIDTH - 1:0]    data_in;        // Input data bus
+    input                       data_available; // Data available on the input bus
 
     // Internal Registers
     reg  [IADDR_WIDTH - 1:0]    pc;             // Program counter
@@ -97,6 +101,7 @@ module cpu(data_out, data_out_en, clk);
         // Default signal states
         data_out = 32'bX;
         data_out_en = 0;
+        data_read = 0;
         data_to_ram = 32'bX;
         ram_write = 0;
         stack_data = 32'bX;
@@ -162,7 +167,22 @@ module cpu(data_out, data_out_en, clk);
                     data_out_en = 1;
                 end
 
-            // F - Input not implemented
+            4'hF:
+                begin
+                    // Input 1 byte
+                    if (data_available)
+                    begin
+                        // Read this byte into memory and signal that it was read
+                        data_to_ram = data_in;
+                        ram_write = 1;
+                        data_read = 1;
+                    end
+                    else
+                    begin
+                        // Busy wait here until we can read (this is like the halt instruction)
+                        next_pc = pc;
+                    end
+                end
 
             // Deault - noop
         endcase
