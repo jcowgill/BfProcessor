@@ -1,6 +1,6 @@
 /*
- * data_ram.v
- * Synchronous RAM module used for data storage
+ * instruction_rom.v
+ * Asynchronous ROM module used for instruction storage
  *
  * Copyright (C) 2013 James Cowgill
  *
@@ -20,41 +20,28 @@
 
 `timescale 1ns / 1ps
 
-module data_ram(data_out, clk, address, data_in, write);
+module instruction_rom(data_out, address);
 
-    // Width of data values stored
-    parameter DATA_WIDTH = 8;
+    // Width of instructions stored in the ROM
+    parameter DATA_WIDTH = 4;
 
-    // Width of addresses (max stack size = 2^ADDR_WIDTH)
-    parameter ADDR_WIDTH = 15;
+    // Width of addresses
+    parameter ADDR_WIDTH = 8;
 
     // Inputs and outputs
     output [DATA_WIDTH - 1:0]   data_out;   // Data currently at the given address
 
-    input                       clk;        // Clock
-
     input [ADDR_WIDTH - 1:0]    address;    // Address of the byte in use
-    input [DATA_WIDTH - 1:0]    data_in;    // Incoming data
-    input                       write;      // If high, writes on a clock edge
 
-    // The RAM storage and output buffer
+    // ROM Storage
     reg [DATA_WIDTH - 1:0] data[0:(1 << ADDR_WIDTH) - 1];
-    reg [DATA_WIDTH - 1:0] output_buffer;
 
-    // View of the output buffer
-    assign data_out = output_buffer;
+    // Output assignment
+    assign data_out = data[address];
 
-    // RAM update code
-    always @(posedge clk)
+    // ROM data loading
+    initial
     begin
-        if (write)
-        begin
-            data[address] <= data_in;
-            output_buffer <= data_in;
-        end
-        else
-        begin
-            output_buffer <= data[address];
-        end
+        $readmemh("rom.mif", data);
     end
 endmodule
