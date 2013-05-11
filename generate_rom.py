@@ -4,10 +4,10 @@ import sys
 import argparse
 
 # Width of instruction addresses
-ADDR_WIDTH = 8
+IADDR_WIDTH = 8
 
 # Maximum opcodes allowed
-MAX_OPCODES = 1 << ADDR_WIDTH
+MAX_OPCODES = 1 << IADDR_WIDTH
 
 class OutOfSpaceError(Exception):
     '''Error raised if there is not enough ROM space'''
