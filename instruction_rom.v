@@ -27,6 +27,9 @@ module instruction_rom(data_out, address);
 
     // Width of addresses
     parameter ADDR_WIDTH = 8;
+    
+    // The ROM file to read from
+    parameter ROM_FILE = "../rom.mif";
 
     // Inputs and outputs
     output [DATA_WIDTH - 1:0]   data_out;   // Data currently at the given address
@@ -42,6 +45,6 @@ module instruction_rom(data_out, address);
     // ROM data loading
     initial
     begin
-        $readmemh("../rom.mif", data);
+        $readmemh(ROM_FILE, data);
     end
 endmodule
