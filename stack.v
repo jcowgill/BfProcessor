@@ -20,7 +20,7 @@
 
 `timescale 1ns / 1ps
 
-module stack(top, clk, rst, pushd, push_en, pop_en);
+module stack(top, clk, pushd, push_en, pop_en);
 
     // Width of data values stored on the stack
     parameter DATA_WIDTH = 8;
@@ -32,7 +32,6 @@ module stack(top, clk, rst, pushd, push_en, pop_en);
     output [DATA_WIDTH - 1:0]   top;    // Value on the top of the stack
 
     input                       clk;    // Clock
-    input                       rst;    // Synchronous Reset
 
     input [DATA_WIDTH - 1:0]    pushd;  // Incoming data for push operations
     input                       push_en;// Pushing on next clock
@@ -49,16 +48,24 @@ module stack(top, clk, rst, pushd, push_en, pop_en);
     // View of the top of the stack
     assign top = stack_top;
 
+    // Stack initialization
+    integer i;
+
+    initial
+    begin
+        // Registers
+        stack_ptr = 0;
+        stack_top = 0;
+
+        // Stack data
+        for (i = 0; i < (1 << ADDR_WIDTH); i = i + 1)
+            stack_data[i] = 0;
+    end
+
     // Main pushing and popping code
     always @(posedge clk)
     begin
-        if (rst)
-        begin
-            // Reset registers
-            stack_top <= 0;
-            stack_ptr <= 0;
-        end
-        else if (push_en)
+        if (push_en)
         begin
             // Copy onto stack and increment pointer
             stack_data[stack_ptr] <= stack_top;

@@ -42,6 +42,6 @@ module instruction_rom(data_out, address);
     // ROM data loading
     initial
     begin
-        $readmemh("rom.mif", data);
+        $readmemh("../rom.mif", data);
     end
 endmodule

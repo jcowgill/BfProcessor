@@ -20,7 +20,7 @@
 
 `timescale 1ns / 1ps
 
-module cpu(data_out, data_out_en, clk, rst);
+module cpu(data_out, data_out_en, clk);
 
     // Width of instruction addresses (affects size of ROM)
     parameter IADDR_WIDTH = 8;
@@ -34,12 +34,14 @@ module cpu(data_out, data_out_en, clk, rst);
     // Width of data entries
     parameter DATA_WIDTH = 8;
 
+    // True to initialize RAM for simulations
+    parameter INIT_RAM = 0;
+
     // Inputs and outputs
     output reg [DATA_WIDTH - 1:0] data_out;     // Output data bus
     output reg                  data_out_en;    // If high, output was written on last cycle
 
     input                       clk;            // Clock
-    input                       rst;            // Synchronous Reset
 
     // Internal Registers
     reg  [IADDR_WIDTH - 1:0]    pc;             // Program counter
@@ -66,7 +68,7 @@ module cpu(data_out, data_out_en, clk, rst);
         .data_out(ci)
     );
 
-    data_ram #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(DADDR_WIDTH)) ram (
+    data_ram #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(DADDR_WIDTH), .INIT_RAM(INIT_RAM)) ram (
         .data_out(data_from_ram),
         .clk(clk),
         .address(dp),
@@ -77,21 +79,27 @@ module cpu(data_out, data_out_en, clk, rst);
     stack #(.DATA_WIDTH(IADDR_WIDTH), .ADDR_WIDTH(SADDR_WIDTH)) loop_stack (
         .top(stack_top),
         .clk(clk),
-        .rst(rst),
         .pushd(stack_data),
         .push_en(stack_push),
         .pop_en(stack_pop)
     );
 
+    // Register initialization
+    initial
+    begin
+        pc = 0;
+        dp = 0;
+    end
+
     // Combinational part
     always @(*)
     begin
         // Default signal states
-        data_out = 1'bx;
+        data_out = 32'bX;
         data_out_en = 0;
-        data_to_ram = 1'bx;
+        data_to_ram = 32'bX;
         ram_write = 0;
-        stack_data = 1'bx;
+        stack_data = 32'bX;
         stack_push = 0;
         stack_pop = 0;
         next_dp = dp;
@@ -163,17 +171,8 @@ module cpu(data_out, data_out_en, clk, rst);
     // Synchronous (register update) part
     always @(posedge clk)
     begin
-        if (rst)
-        begin
-            // Reset registers
-            pc <= 0;
-            dp <= 0;
-        end
-        else
-        begin
-            // Update registers
-            pc <= next_pc;
-            dp <= next_dp;
-        end
+        // Update registers
+        pc <= next_pc;
+        dp <= next_dp;
     end
 endmodule

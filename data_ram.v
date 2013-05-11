@@ -28,6 +28,10 @@ module data_ram(data_out, clk, address, data_in, write);
     // Width of addresses (max stack size = 2^ADDR_WIDTH)
     parameter ADDR_WIDTH = 15;
 
+    // True to initialize RAM in an initial block
+    //  This can be disabled for synthesis when it is very slow and unnessesary
+    parameter INIT_RAM = 1;
+
     // Inputs and outputs
     output [DATA_WIDTH - 1:0]   data_out;   // Data currently at the given address
 
@@ -43,6 +47,20 @@ module data_ram(data_out, clk, address, data_in, write);
 
     // View of the output buffer
     assign data_out = output_buffer;
+
+    // RAM initialization
+    integer i;
+
+    initial
+    begin
+        output_buffer = 0;
+
+        if (INIT_RAM)
+        begin
+            for (i = 0; i < (1 << ADDR_WIDTH); i = i + 1)
+                data[i] = 0;
+        end
+    end
 
     // RAM update code
     always @(posedge clk)
