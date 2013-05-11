@@ -15,7 +15,7 @@ class OutOfSpaceError(Exception):
     def __init__(self):
         Exception.__init__(self, \
             "Not enough ROM space\n" + \
-            " You can get more by increasing ADDR_WIDTH in this file and cpu.v\n")
+            " You can get more by increasing IADDR_WIDTH in this file and cpu.v\n")
 
 def file_iterator(file):
     '''Returns an iterator iterating over the characters in a file'''

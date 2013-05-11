@@ -23,7 +23,7 @@
 module stack(top, clk, rst, pushd, push_en, pop_en);
 
     // Width of data values stored on the stack
-    parameter DATA_WIDTH = 16;
+    parameter DATA_WIDTH = 8;
 
     // Width of stack addresses (max stack size = 2^ADDR_WIDTH)
     parameter ADDR_WIDTH = 5;
