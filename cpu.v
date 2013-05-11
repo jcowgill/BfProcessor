@@ -71,7 +71,7 @@ module cpu(data_out, data_out_en, clk);
     data_ram #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(DADDR_WIDTH), .INIT_RAM(INIT_RAM)) ram (
         .data_out(data_from_ram),
         .clk(clk),
-        .address(dp),
+        .address(next_dp),
         .data_in(data_to_ram),
         .write(ram_write)
     );
