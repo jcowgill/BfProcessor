@@ -12,9 +12,9 @@ MAX_OPCODES = 1 << IADDR_WIDTH
 class OutOfSpaceError(Exception):
     '''Error raised if there is not enough ROM space'''
 
-    def __init__(self):
+    def __init__(self, needed):
         Exception.__init__(self, \
-            "Not enough ROM space\n" + \
+            "Not enough ROM space (" + str(needed) + " addresses required)\n" + \
             " You can get more by increasing IADDR_WIDTH in this file and cpu.v\n")
 
 def file_iterator(file):
@@ -54,7 +54,7 @@ def convert_bf(in_file, out_file):
 
     # Pad the rest of the file with halt instructions
     if opcodes >= MAX_OPCODES:
-        raise OutOfSpaceError()
+        raise OutOfSpaceError(opcodes + 1)
 
     for _ in range(MAX_OPCODES - opcodes):
         out_file.write('0\n')
