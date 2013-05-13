@@ -58,6 +58,15 @@ module cpu_tb;
             data_in <= data_in + 1'b1;
         end
     end
+    
+    // Print output
+    always @(posedge clk)
+    begin
+        if (data_out_en)
+        begin
+            $write("%c", data_out);
+        end
+    end
 
     // Clock signal
     always
