@@ -161,7 +161,7 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
 
                 4'hC:
                     begin
-                        // Start loop - either skip entire loop of push into it
+                        // Start loop - either skip entire loop or push into it
                         if (data_from_ram == 0)
                         begin
                             // Skip entire loop
@@ -208,7 +208,7 @@ module cpu(clk, data_in, data_available, data_out, data_out_en, data_read);
                         end
                     end
 
-                // Deault - noop
+                // Default - no op
             endcase
         end
         else
